@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovateX — Product Roadmap Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2332;
+            --border: #1e293b;
+            --border-accent: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-violet: #8b5cf6;
+            --accent-orange: #f97316;
+            --status-not-started: #334155;
+            --status-in-progress: #3b82f6;
+            --status-complete: #10b981;
+            --status-blocked: #f43f5e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(6,182,212,0.08));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header .tagline {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Market context */
+        .market-context {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .market-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .market-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.8rem;
+        }
+
+        .market-card .big-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .market-card .detail {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Architecture decision banner */
+        .arch-banner {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.1));
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .arch-banner .icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .arch-banner .content h3 {
+            color: var(--accent-emerald);
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .arch-banner .content p {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+        }
+
+        /* Phase sections */
+        .phase {
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .phase-header:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .phase-header .left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .phase-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .phase-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .phase-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .phase-weeks {
+            background: rgba(59,130,246,0.15);
+            color: var(--accent-blue);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .phase-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            min-width: 32px;
+        }
+
+        .chevron {
+            color: var(--text-muted);
+            transition: transform 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .phase.open .chevron {
+            transform: rotate(90deg);
+        }
+
+        .phase-body {
+            display: none;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .phase.open .phase-body {
+            display: block;
+        }
+
+        .exit-criteria {
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.2);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .exit-criteria strong {
+            color: var(--accent-violet);
+        }
+
+        /* Task table */
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .task-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .task-table td {
+            padding: 0.7rem 0.8rem;
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(30,41,59,0.5);
+            vertical-align: top;
+        }
+
+        .task-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .task-table tr:hover td {
+            background: rgba(59,130,246,0.03);
+        }
+
+        .task-id {
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .task-name {
+            color: var(--text-primary);
+        }
+
+        .task-est {
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .task-deps {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .status-not-started {
+            background: rgba(51,65,85,0.5);
+            color: var(--text-muted);
+        }
+
+        .status-in-progress {
+            background: rgba(59,130,246,0.2);
+            color: var(--accent-blue);
+        }
+
+        .status-complete {
+            background: rgba(16,185,129,0.2);
+            color: var(--accent-emerald);
+        }
+
+        .status-blocked {
+            background: rgba(244,63,94,0.2);
+            color: var(--accent-rose);
+        }
+
+        /* Tech stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .tech-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: flex-start;
+        }
+
+        .tech-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .tech-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .tech-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Revenue model */
+        .revenue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .revenue-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.3rem;
+        }
+
+        .revenue-card h4 {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .revenue-card .amount {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .revenue-card .note {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* NPC integration */
+        .npc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .npc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.3rem;
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        .npc-card h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .npc-card p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Risk register */
+        .risk-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        .risk-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.8rem 1rem;
+            background: rgba(30,41,59,0.5);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .risk-table td {
+            padding: 0.7rem 1rem;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(30,41,59,0.3);
+            color: var(--text-secondary);
+        }
+
+        .risk-high { color: var(--accent-rose); font-weight: 600; }
+        .risk-medium { color: var(--accent-amber); font-weight: 600; }
+        .risk-low { color: var(--accent-emerald); font-weight: 600; }
+        .risk-critical { color: #ef4444; font-weight: 700; }
+
+        /* Section headers */
+        .section-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Timeline */
+        .timeline-bar {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 2.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 40px;
+        }
+
+        .timeline-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            padding: 0 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: filter 0.15s;
+        }
+
+        .timeline-segment:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header h1 { font-size: 1.5rem; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .task-table { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>NovateX</h1>
+            <div class="subtitle">Novated Lease Soft Contract Platform</div>
+            <div class="tagline">Multi-party automated financial agreements for Australian novated leases</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="value" style="color: var(--accent-blue)">10</div>
+                <div class="label">Phases</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color: var(--accent-cyan)">52</div>
+                <div class="label">Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color: var(--accent-emerald)">0%</div>
+                <div class="label">Complete</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color: var(--accent-amber)">~34 wks</div>
+                <div class="label">To MVP+GTM</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" style="color: var(--accent-violet)">Pre-build</div>
+                <div class="label">Status</div>
+            </div>
+        </div>
+
+        <!-- Market Context -->
+        <h2 class="section-header">Market Context</h2>
+        <div class="market-context">
+            <div class="market-card">
+                <h3>Active Leases (AU)</h3>
+                <div class="big-number" style="color: var(--accent-blue)">~400K</div>
+                <div class="detail">~130K new originations/year</div>
+            </div>
+            <div class="market-card">
+                <h3>Annual Origination Volume</h3>
+                <div class="big-number" style="color: var(--accent-emerald)">$6-8B</div>
+                <div class="detail">AUD, growing 15-25% YoY (EV driven)</div>
+            </div>
+            <div class="market-card">
+                <h3>EV Share of New Leases</h3>
+                <div class="big-number" style="color: var(--accent-cyan)">30-40%</div>
+                <div class="detail">Up from &lt;5% pre-FBT exemption (Jul 2022)</div>
+            </div>
+            <div class="market-card">
+                <h3>Target ARR (10K leases)</h3>
+                <div class="big-number" style="color: var(--accent-amber)">$4.5-5.5M</div>
+                <div class="detail">SaaS + transaction fees</div>
+            </div>
+        </div>
+
+        <!-- Architecture Decision -->
+        <div class="arch-banner">
+            <div class="icon">&#9670;</div>
+            <div class="content">
+                <h3>Architecture Decision: Signed Event Ledger, NOT Blockchain</h3>
+                <p>Corda evaluated and rejected. Known parties under AU law don't need Byzantine fault tolerance. ASX CHESS failure (A$250M write-off) makes DLT a credibility risk. We get 95% of auditability at 10% of complexity: Ed25519 signatures, Merkle tree tamper evidence, optional hash anchoring to Ethereum. PostgreSQL at $50/mo vs Corda cluster at $500+/mo.</p>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <h2 class="section-header">Timeline</h2>
+        <div class="timeline-bar">
+            <div class="timeline-segment" style="flex: 6; background: var(--accent-blue);" onclick="openPhase(0)">P0: Kernel (6w)</div>
+            <div class="timeline-segment" style="flex: 4; background: var(--accent-cyan);" onclick="openPhase(1)">P1: Demo (4w)</div>
+            <div class="timeline-segment" style="flex: 4; background: var(--accent-emerald);" onclick="openPhase(2)">P2: Payroll (4w)</div>
+            <div class="timeline-segment" style="flex: 3; background: var(--accent-amber);" onclick="openPhase(3)">P3: Costs (3w)</div>
+            <div class="timeline-segment" style="flex: 4; background: var(--accent-violet);" onclick="openPhase(4)">P4: FBT (4w)</div>
+            <div class="timeline-segment" style="flex: 4; background: var(--accent-orange);" onclick="openPhase(5)">P5: Portals (4w)</div>
+            <div class="timeline-segment" style="flex: 2; background: var(--accent-rose);" onclick="openPhase(6)">P6 (2w)</div>
+            <div class="timeline-segment" style="flex: 3; background: #6366f1;" onclick="openPhase(7)">P7: APIs (3w)</div>
+            <div class="timeline-segment" style="flex: 4; background: #a855f7;" onclick="openPhase(8)">P8: Harden (4w)</div>
+            <div class="timeline-segment" style="flex: 4; background: #14b8a6;" onclick="openPhase(9)">P9: GTM</div>
+        </div>
+
+        <!-- Phases -->
+        <h2 class="section-header">Phases</h2>
+        <div id="phases-container"></div>
+
+        <!-- Tech Stack -->
+        <h2 class="section-header">Technology Stack</h2>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">Y</div>
+                <div class="tech-info">
+                    <h4>YAML + Pydantic</h4>
+                    <p>Contract templates & data models. Simple, testable, hireable.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(16,185,129,0.15); color: var(--accent-emerald);">Py</div>
+                <div class="tech-info">
+                    <h4>Python Rules Engine</h4>
+                    <p>FBT/GST calculations, obligation logic, state machine.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(6,182,212,0.15); color: var(--accent-cyan);">PG</div>
+                <div class="tech-info">
+                    <h4>PostgreSQL</h4>
+                    <p>Append-only event store + read models. $50/mo managed.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(139,92,246,0.15); color: var(--accent-violet);">Ed</div>
+                <div class="tech-info">
+                    <h4>Ed25519 Signatures</h4>
+                    <p>Every event signed by originator. No CA needed.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(245,158,11,0.15); color: var(--accent-amber);">Mk</div>
+                <div class="tech-info">
+                    <h4>Merkle Tree</h4>
+                    <p>Tamper evidence. Optional hash anchor to Ethereum.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(244,63,94,0.15); color: var(--accent-rose);">FA</div>
+                <div class="tech-info">
+                    <h4>FastAPI</h4>
+                    <p>Async API layer. OpenAPI spec. Type-safe.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(99,102,241,0.15); color: #6366f1;">HX</div>
+                <div class="tech-info">
+                    <h4>HTMX + Alpine.js</h4>
+                    <p>NPC frontend pattern. Or React — TBD based on team.</p>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon" style="background: rgba(20,184,166,0.15); color: #14b8a6;">S3</div>
+                <div class="tech-info">
+                    <h4>S3 + SHA-256</h4>
+                    <p>Content-addressed document storage. Receipts, deeds, reports.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Model -->
+        <h2 class="section-header">Revenue Model</h2>
+        <div class="revenue-grid">
+            <div class="revenue-card">
+                <h4>Platform SaaS</h4>
+                <div class="amount" style="color: var(--accent-blue);">$25-35</div>
+                <div class="note">Per lease/month to employer or financier</div>
+            </div>
+            <div class="revenue-card">
+                <h4>Running Cost Processing</h4>
+                <div class="amount" style="color: var(--accent-cyan);">1.5%</div>
+                <div class="note">Transaction fee on claims ($120-180/yr per lease)</div>
+            </div>
+            <div class="revenue-card">
+                <h4>Onboarding</h4>
+                <div class="amount" style="color: var(--accent-emerald);">$200-400</div>
+                <div class="note">Per-lease setup fee (one-time)</div>
+            </div>
+            <div class="revenue-card">
+                <h4>Data & Analytics</h4>
+                <div class="amount" style="color: var(--accent-violet);">$5-10</div>
+                <div class="note">Per employee/month — fleet & FBT dashboards</div>
+            </div>
+            <div class="revenue-card">
+                <h4>White-Label</h4>
+                <div class="amount" style="color: var(--accent-amber);">$50-200K</div>
+                <div class="note">Annual license to smaller lease providers</div>
+            </div>
+        </div>
+
+        <!-- NPC Integration -->
+        <h2 class="section-header">NPC Family Integration</h2>
+        <div class="npc-grid">
+            <div class="npc-card">
+                <h4>Layer 2: Field Library</h4>
+                <p>Novated lease semantic fields — SalarySacrificePreTax, ECMContribution, RunningCostPool, ATOResidualMinimum. Same 5-class aggregation model.</p>
+            </div>
+            <div class="npc-card">
+                <h4>Layer 5: Governance Memory</h4>
+                <p>RunRecordLog = event ledger. EvidencePack = FBT reconciliation proof. Zero new infrastructure needed.</p>
+            </div>
+            <div class="npc-card">
+                <h4>Omega Governed Contracts</h4>
+                <p>"Structurally impossible to emit an incorrect payroll deduction" — same thesis as certified board packs.</p>
+            </div>
+            <div class="npc-card">
+                <h4>Layer 4: AI Intent</h4>
+                <p>NL queries: "what's my tax saving?" / "what's my residual?" Query over contract state + ATO rates.</p>
+            </div>
+            <div class="npc-card">
+                <h4>Layer 6: Board Readiness</h4>
+                <p>Employer CFO dashboard: FBT exposure, fleet composition, compliance. Same Jinja2 + ECharts pipeline.</p>
+            </div>
+            <div class="npc-card">
+                <h4>Reconciliation Engine</h4>
+                <p>Running cost pool reconciliation = bank transaction matching pattern already built.</p>
+            </div>
+        </div>
+
+        <!-- Risk Register -->
+        <h2 class="section-header">Risk Register</h2>
+        <table class="risk-table">
+            <thead>
+                <tr>
+                    <th>Risk</th>
+                    <th>Likelihood</th>
+                    <th>Impact</th>
+                    <th>Mitigation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Employer lock-in to incumbents</td>
+                    <td class="risk-high">High</td>
+                    <td class="risk-high">High</td>
+                    <td>Target employers without providers, or white-label to providers</td>
+                </tr>
+                <tr>
+                    <td>"Just a better portal" commoditisation</td>
+                    <td class="risk-high">High</td>
+                    <td class="risk-high">High</td>
+                    <td>Moat is obligation engine + tamper-evident ledger + NPC integration</td>
+                </tr>
+                <tr>
+                    <td>EV FBT exemption sunsets</td>
+                    <td class="risk-medium">Medium</td>
+                    <td class="risk-medium">Medium</td>
+                    <td>Build for all vehicle types, not just EV</td>
+                </tr>
+                <tr>
+                    <td>Payroll API instability</td>
+                    <td class="risk-medium">Medium</td>
+                    <td class="risk-medium">Medium</td>
+                    <td>Adapter pattern, manual fallback, polling with retry</td>
+                </tr>
+                <tr>
+                    <td>Privacy Act breach</td>
+                    <td class="risk-low">Low</td>
+                    <td class="risk-critical">Critical</td>
+                    <td>Need-to-know data model, encryption at rest, PIA</td>
+                </tr>
+                <tr>
+                    <td>Regulatory change (FBT rules)</td>
+                    <td class="risk-low">Low</td>
+                    <td class="risk-medium">Medium</td>
+                    <td>Configurable rules engine, ATO rate feed</td>
+                </tr>
+                <tr>
+                    <td>Key person risk</td>
+                    <td class="risk-medium">Medium</td>
+                    <td class="risk-high">High</td>
+                    <td>Document everything, standard tech stack</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            NovateX &mdash; Newport Pembury & Co Product Family<br>
+            <span>Last updated: 2026-04-02</span>
+        </div>
+    </div>
+
+    <script>
+        const phases = [
+            {
+                number: 0, title: "Contract Kernel", weeks: "1-6", color: "var(--accent-blue)",
+                exitCriteria: "Can instantiate a novated lease from YAML, transition through lifecycle states, log signed events, and track obligations with deadlines.",
+                tasks: [
+                    { id: "0.1", name: "Define YAML contract template schema (parties, vehicle, terms, FBT, running costs, obligations)", est: "1 week", deps: "None", status: "not-started" },
+                    { id: "0.2", name: "Pydantic models -- NovatedLease, Vehicle, LeaseTerms, FBTConfig, RunningCostPool, Party", est: "1 week", deps: "0.1", status: "not-started" },
+                    { id: "0.3", name: "State machine engine -- DRAFT to ACTIVE to RECONCILIATION to MATURITY/TERMINATION", est: "1 week", deps: "0.2", status: "not-started" },
+                    { id: "0.4", name: "Signed event ledger -- append-only PostgreSQL, Ed25519 signatures, Merkle tree", est: "1.5 weeks", deps: "0.2", status: "not-started" },
+                    { id: "0.5", name: "Contract template parser -- load YAML, validate, bind to legal document hash", est: "0.5 weeks", deps: "0.1, 0.2", status: "not-started" },
+                    { id: "0.6", name: "Obligation engine v1 -- deadlines per party, overdue flags, escalation events", est: "1 week", deps: "0.3, 0.4", status: "not-started" },
+                    { id: "0.7", name: "Unit test suite -- state machine, event signing/verification, obligations", est: "Throughout", deps: "All", status: "not-started" },
+                    { id: "0.8", name: "ATO residual value table -- minimum residual % by lease term (12-60 months)", est: "0.5 weeks", deps: "None", status: "not-started" }
+                ]
+            },
+            {
+                number: 1, title: "Single Lease Demo", weeks: "7-10", color: "var(--accent-cyan)",
+                exitCriteria: "A single lease visible in a portal, with manual payroll cycles logged, running cost claims submitted, and tamper-evident event history browsable.",
+                tasks: [
+                    { id: "1.1", name: "Seed data -- one real/realistic novated lease (EV, 36-month, ECM)", est: "0.5 weeks", deps: "Phase 0", status: "not-started" },
+                    { id: "1.2", name: "Employee portal v1 -- deduction breakdown, running cost balance, FBT impact, residual countdown", est: "2 weeks", deps: "1.1", status: "not-started" },
+                    { id: "1.3", name: "Manual payroll cycle flow -- HR enters deduction confirmation, system logs event", est: "1 week", deps: "0.4", status: "not-started" },
+                    { id: "1.4", name: "Running cost claim submission -- receipt upload, category selection, budget check", est: "1 week", deps: "0.6", status: "not-started" },
+                    { id: "1.5", name: "Tamper evidence demo -- Merkle tree verification, event chain integrity display", est: "0.5 weeks", deps: "0.4", status: "not-started" }
+                ]
+            },
+            {
+                number: 2, title: "Payroll Integration", weeks: "11-14", color: "var(--accent-emerald)",
+                exitCriteria: "Payroll deductions automatically detected from Xero, matched to leases, events logged, remittance tracked. MYOB supported as second adapter.",
+                tasks: [
+                    { id: "2.1", name: "Xero payroll API adapter -- OAuth2, poll pay runs, match to active leases", est: "1.5 weeks", deps: "Phase 1", status: "not-started" },
+                    { id: "2.2", name: "Deduction engine -- pre-tax/post-tax split, leave proration", est: "1 week", deps: "0.2", status: "not-started" },
+                    { id: "2.3", name: "Remittance tracking -- employer-to-financier payment confirmation, reconciliation", est: "1 week", deps: "0.4, 2.1", status: "not-started" },
+                    { id: "2.4", name: "MYOB payroll API adapter (same interface, different backend)", est: "1 week", deps: "2.1", status: "not-started" },
+                    { id: "2.5", name: "Payroll adapter abstraction -- clean interface for future systems (KeyPay, etc.)", est: "0.5 weeks", deps: "2.1, 2.4", status: "not-started" }
+                ]
+            },
+            {
+                number: 3, title: "Running Cost Management", weeks: "15-17", color: "var(--accent-amber)",
+                exitCriteria: "Running costs managed end-to-end. Employee submits receipt, auto-validated, reimbursed, event logged. Budget surplus/deficit projected.",
+                tasks: [
+                    { id: "3.1", name: "Running cost pool engine -- monthly budget, category breakdown (fuel, insurance, rego, tyres, maintenance, roadside)", est: "1 week", deps: "0.2", status: "not-started" },
+                    { id: "3.2", name: "Claim workflow -- submit, auto-validate against budget, approve/reject, reimburse", est: "1 week", deps: "1.4, 3.1", status: "not-started" },
+                    { id: "3.3", name: "Receipt handling -- SHA-256 content-addressed S3 storage, hash in event ledger", est: "0.5 weeks", deps: "0.4", status: "not-started" },
+                    { id: "3.4", name: "Budget forecast -- project surplus/deficit at lease end from burn rate", est: "0.5 weeks", deps: "3.1", status: "not-started" },
+                    { id: "3.5", name: "EV running cost profile -- charging costs, reduced maintenance, no fuel category", est: "0.5 weeks", deps: "3.1", status: "not-started" },
+                    { id: "3.6", name: "Fleet manager portal v1 -- claim queue, budget overview, vendor payment status", est: "1 week", deps: "3.2", status: "not-started" }
+                ]
+            },
+            {
+                number: 4, title: "FBT Engine", weeks: "18-21", color: "var(--accent-violet)",
+                exitCriteria: "Both FBT methods calculated correctly. Annual reconciliation automated. STP2-compliant output generated. EV exemption handled.",
+                tasks: [
+                    { id: "4.1", name: "Statutory formula calculator -- 20% x base value, ECM post-tax contribution to zero FBT", est: "1 week", deps: "0.2", status: "not-started" },
+                    { id: "4.2", name: "Operating cost method -- logbook input, odometer tracking, private-use % calculation", est: "1 week", deps: "4.1", status: "not-started" },
+                    { id: "4.3", name: "EV FBT exemption logic -- vehicle type check, LCT threshold, zero-rate application", est: "0.5 weeks", deps: "4.1", status: "not-started" },
+                    { id: "4.4", name: "Annual reconciliation workflow -- odometer collection, FBT calc, ECM shortfall detection", est: "1 week", deps: "4.1, 4.2, 0.6", status: "not-started" },
+                    { id: "4.5", name: "STP Phase 2 output -- salary sacrifice amounts, reportable fringe benefits, ATO format", est: "1 week", deps: "4.4, 2.1", status: "not-started" },
+                    { id: "4.6", name: "FBT year-end report -- per-employee breakdown, employer aggregate, submission-ready", est: "0.5 weeks", deps: "4.4, 4.5", status: "not-started" }
+                ]
+            },
+            {
+                number: 5, title: "Multi-Party Portals", weeks: "22-25", color: "var(--accent-orange)",
+                exitCriteria: "All four party types have dedicated portals with appropriate data visibility. Notifications working for obligation deadlines.",
+                tasks: [
+                    { id: "5.1", name: "Employer/HR dashboard -- active leases, FBT exposure, fleet composition, compliance, payroll health", est: "1.5 weeks", deps: "Phase 2, 4", status: "not-started" },
+                    { id: "5.2", name: "Financier portal -- payment receipts, asset status, portfolio overview, residual schedule", est: "1 week", deps: "Phase 2", status: "not-started" },
+                    { id: "5.3", name: "Employee portal v2 -- FBT calculator, what-if scenarios, method comparison, residual planning", est: "1 week", deps: "1.2, Phase 4", status: "not-started" },
+                    { id: "5.4", name: "Role-based access control -- party-specific data visibility, API-level enforcement", est: "0.5 weeks", deps: "All portals", status: "not-started" },
+                    { id: "5.5", name: "Notification system -- email/SMS for obligations, escalations, deadlines", est: "0.5 weeks", deps: "0.6", status: "not-started" }
+                ]
+            },
+            {
+                number: 6, title: "Obligation Engine v2 + Multi-Party Workflows", weeks: "26-27", color: "var(--accent-rose)",
+                exitCriteria: "All lifecycle events (transfer, termination, maturity, total loss) handled with multi-party consent. Escalation chains working.",
+                tasks: [
+                    { id: "6.1", name: "Novation transfer -- 3-of-3 consent protocol, atomic execution", est: "1 week", deps: "0.3, 5.4", status: "not-started" },
+                    { id: "6.2", name: "Employment termination flow -- novation unwind, lease reversion, final deduction", est: "0.5 weeks", deps: "0.3, 2.1", status: "not-started" },
+                    { id: "6.3", name: "Lease maturity -- residual payment, trade-in valuation (Redbook), re-lease option", est: "0.5 weeks", deps: "0.3, 0.8", status: "not-started" },
+                    { id: "6.4", name: "Total loss / insurance event -- gap insurance, payout calculation, running cost settlement", est: "0.5 weeks", deps: "0.3, 3.1", status: "not-started" },
+                    { id: "6.5", name: "Escalation engine -- configurable chains, SLA tracking, breach reporting", est: "0.5 weeks", deps: "0.6", status: "not-started" }
+                ]
+            },
+            {
+                number: 7, title: "External Integrations & Oracle Feeds", weeks: "28-30", color: "#6366f1",
+                exitCriteria: "Live data feeds for ATO rates, vehicle valuations, and fuel prices. Insurance integration functional. CDR-ready consent architecture.",
+                tasks: [
+                    { id: "7.1", name: "ATO rate feed -- FBT rates, LCT thresholds, minimum residual tables", est: "0.5 weeks", deps: "Phase 4", status: "not-started" },
+                    { id: "7.2", name: "Redbook / Glass's API -- vehicle residual market values for maturity planning", est: "1 week", deps: "6.3", status: "not-started" },
+                    { id: "7.3", name: "Insurance API adapter -- premium quotes, renewal tracking, claim status", est: "1 week", deps: "3.1", status: "not-started" },
+                    { id: "7.4", name: "Fuel price index -- ACCC data for running cost projections", est: "0.5 weeks", deps: "3.4", status: "not-started" },
+                    { id: "7.5", name: "CDR readiness -- data sharing consent framework for open banking/payroll", est: "0.5 weeks", deps: "5.4", status: "not-started" }
+                ]
+            },
+            {
+                number: 8, title: "Production Hardening", weeks: "31-34", color: "#a855f7",
+                exitCriteria: "Security audit passed. Performance validated at 10K leases. Deployed to production. Monitoring operational.",
+                tasks: [
+                    { id: "8.1", name: "Security audit -- OWASP top 10, Privacy Act compliance, penetration testing", est: "1 week", deps: "All", status: "not-started" },
+                    { id: "8.2", name: "Key management -- Ed25519 key generation, rotation, HSM integration", est: "1 week", deps: "0.4", status: "not-started" },
+                    { id: "8.3", name: "Performance testing -- 10K active leases, 500 events/day", est: "0.5 weeks", deps: "All", status: "not-started" },
+                    { id: "8.4", name: "Deployment pipeline -- CI/CD, staging, database migrations", est: "1 week", deps: "All", status: "not-started" },
+                    { id: "8.5", name: "Monitoring & alerting -- obligation engine health, payroll sync, ledger integrity", est: "0.5 weeks", deps: "All", status: "not-started" },
+                    { id: "8.6", name: "Hash anchoring (optional) -- periodic Merkle root to Ethereum", est: "0.5 weeks", deps: "0.4", status: "not-started" },
+                    { id: "8.7", name: "Compliance documentation -- Privacy Impact Assessment, data retention policy", est: "Throughout", deps: "All", status: "not-started" }
+                ]
+            },
+            {
+                number: 9, title: "Go-to-Market", weeks: "35+", color: "#14b8a6",
+                exitCriteria: "Pilot employer live with 5-20 leases. White-label package available. NPC cross-sell pathway established.",
+                tasks: [
+                    { id: "9.1", name: "Pilot employer -- 1 SME client, 5-20 leases, full lifecycle test", est: "4 weeks", deps: "Phase 8", status: "not-started" },
+                    { id: "9.2", name: "White-label package -- for smaller lease providers wanting modern infrastructure", est: "2 weeks", deps: "Phase 8", status: "not-started" },
+                    { id: "9.3", name: "Employer sales collateral -- ROI calculator, compliance automation pitch", est: "1 week", deps: "9.1", status: "not-started" },
+                    { id: "9.4", name: "Financier partnership -- one finance company for direct integration", est: "Ongoing", deps: "Phase 8", status: "not-started" },
+                    { id: "9.5", name: "NPC cross-sell integration -- novated lease mgmt as part of fractional CFO offering", est: "2 weeks", deps: "9.1", status: "not-started" }
+                ]
+            }
+        ];
+
+        function getStatusLabel(status) {
+            const labels = {
+                'not-started': 'Not Started',
+                'in-progress': 'In Progress',
+                'complete': 'Complete',
+                'blocked': 'Blocked'
+            };
+            return labels[status] || status;
+        }
+
+        function getPhaseProgress(phase) {
+            const total = phase.tasks.length;
+            const complete = phase.tasks.filter(t => t.status === 'complete').length;
+            return { complete, total, pct: total > 0 ? Math.round((complete / total) * 100) : 0 };
+        }
+
+        function renderPhases() {
+            const container = document.getElementById('phases-container');
+            container.innerHTML = phases.map((phase, idx) => {
+                const progress = getPhaseProgress(phase);
+                const progressColor = progress.pct === 100 ? 'var(--accent-emerald)' :
+                                     progress.pct > 0 ? 'var(--accent-blue)' : 'var(--status-not-started)';
+                return `
+                    <div class="phase" id="phase-${idx}">
+                        <div class="phase-header" onclick="togglePhase(${idx})">
+                            <div class="left">
+                                <div class="phase-number" style="background: ${phase.color}22; color: ${phase.color};">P${phase.number}</div>
+                                <span class="phase-title">${phase.title}</span>
+                                <span class="phase-weeks">Weeks ${phase.weeks}</span>
+                            </div>
+                            <div class="phase-meta">
+                                <div class="phase-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${progress.pct}%; background: ${progressColor};"></div>
+                                    </div>
+                                    <span class="progress-text">${progress.complete}/${progress.total}</span>
+                                </div>
+                                <span class="chevron">&#9654;</span>
+                            </div>
+                        </div>
+                        <div class="phase-body">
+                            <div class="exit-criteria"><strong>Exit Criteria:</strong> ${phase.exitCriteria}</div>
+                            <table class="task-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:60px">ID</th>
+                                        <th>Task</th>
+                                        <th style="width:90px">Estimate</th>
+                                        <th style="width:100px">Deps</th>
+                                        <th style="width:100px">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${phase.tasks.map(task => `
+                                        <tr>
+                                            <td class="task-id">${task.id}</td>
+                                            <td class="task-name">${task.name}</td>
+                                            <td class="task-est">${task.est}</td>
+                                            <td class="task-deps">${task.deps}</td>
+                                            <td><span class="status-badge status-${task.status}">${getStatusLabel(task.status)}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function togglePhase(idx) {
+            const el = document.getElementById(`phase-${idx}`);
+            el.classList.toggle('open');
+        }
+
+        function openPhase(idx) {
+            const el = document.getElementById(`phase-${idx}`);
+            el.classList.add('open');
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        renderPhases();
+    </script>
+</body>
+</html>
