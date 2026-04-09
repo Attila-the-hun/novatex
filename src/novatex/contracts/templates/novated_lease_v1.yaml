@@ -1,0 +1,51 @@
+---
+schema_version: "1.0"
+legal_document_hash: "sha256:placeholder_replace_with_real_hash"
+
+lease_id: "NL-2026-00001"
+
+parties:
+  - party_id: "EMP-001"
+    role: employee
+    name: "Jane Smith"
+  - party_id: "ORG-001"
+    role: employer
+    name: "Acme Corp"
+    abn: "12 345 678 901"
+  - party_id: "FIN-001"
+    role: financier
+    name: "SG Fleet Finance"
+    abn: "98 765 432 109"
+
+vehicle:
+  make: "Tesla"
+  model: "Model 3"
+  year: 2026
+  vehicle_type: bev
+  cost_base: 55000.00
+  gst_credit: 5000.00
+
+terms:
+  start_date: "2026-07-01"
+  term_months: 36
+  residual_pct: 46.88
+  finance_rate: 6.49
+  salary_sacrifice:
+    frequency: fortnightly
+    pre_tax: 612.00
+    post_tax_ecm: 183.00
+
+fbt:
+  method: ev_exempt
+  base_value: 55000.00
+  statutory_rate: 0.20
+
+running_costs:
+  monthly_budget: 580.00
+  categories:
+    - charging
+    - insurance
+    - registration
+    - tyres
+    - maintenance
+    - roadside
