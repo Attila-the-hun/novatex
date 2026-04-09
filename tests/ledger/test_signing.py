@@ -67,3 +67,71 @@ class TestLeaseEvent:
         }
         actual = {e.value for e in EventType}
         assert expected == actual
+
+
+import nacl.signing
+import nacl.encoding
+
+from novatex.ledger.signing import sign_event, verify_event, generate_keypair
+
+
+class TestSigning:
+    def test_generate_keypair(self):
+        private_hex, public_hex = generate_keypair()
+        assert len(private_hex) == 64  # 32 bytes hex-encoded
+        assert len(public_hex) == 64
+
+    def test_sign_and_verify_roundtrip(self):
+        private_hex, public_hex = generate_keypair()
+        event = LeaseEvent(
+            event_id="evt-sign-001",
+            lease_id="NL-2026-00001",
+            event_type=EventType.CONTRACT_CREATED,
+            timestamp=datetime(2026, 7, 1, 9, 0, 0, tzinfo=timezone.utc),
+            originator="employee",
+            payload={"test": True},
+        )
+        signed = sign_event(event, private_hex)
+        assert signed.signature is not None
+        assert signed.public_key == public_hex
+        assert verify_event(signed) is True
+
+    def test_verify_rejects_tampered_event(self):
+        private_hex, public_hex = generate_keypair()
+        event = LeaseEvent(
+            event_id="evt-tamper-001",
+            lease_id="NL-2026-00001",
+            event_type=EventType.CONTRACT_CREATED,
+            timestamp=datetime(2026, 7, 1, 9, 0, 0, tzinfo=timezone.utc),
+            originator="employee",
+            payload={"amount": 1000},
+        )
+        signed = sign_event(event, private_hex)
+        # Tamper with payload after signing
+        signed.payload["amount"] = 9999
+        assert verify_event(signed) is False
+
+    def test_verify_rejects_missing_signature(self):
+        event = LeaseEvent(
+            event_id="evt-nosig-001",
+            lease_id="NL-2026-00001",
+            event_type=EventType.CONTRACT_CREATED,
+            timestamp=datetime(2026, 7, 1, 9, 0, 0, tzinfo=timezone.utc),
+            originator="employee",
+            payload={},
+        )
+        assert verify_event(event) is False
+
+    def test_sign_preserves_original_event(self):
+        """sign_event returns a new event, does not mutate the original."""
+        private_hex, _ = generate_keypair()
+        event = LeaseEvent(
+            event_id="evt-immut-001",
+            lease_id="NL-2026-00001",
+            event_type=EventType.CONTRACT_CREATED,
+            timestamp=datetime(2026, 7, 1, 9, 0, 0, tzinfo=timezone.utc),
+            originator="employee",
+            payload={},
+        )
+        sign_event(event, private_hex)
+        assert event.signature is None  # original unchanged
